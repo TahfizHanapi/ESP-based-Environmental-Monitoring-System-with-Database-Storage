@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Environment Sensor</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center; /* Center align content horizontally */
+            align-items: center; /* Center align content vertically */
+            height: 100vh;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #64aade; /* Light background color */
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Center align content horizontally */
+            width: 100%;
+            max-width: 1200px; /* Adjust max-width as needed */
+            padding: 20px;
+        }
+        .box {
+            width: 100%;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        .box-header {
+            background-color: #f1a7a7;
+            padding: 10px;
+            text-align: center;
+            border-bottom: 1px solid #ddd;
+        }
+        .box-content {
+            padding: 20px;
+            display: flex;
+            margin-left: 25%; /* Center align content horizontally */
+            align-items: center; /* Center align content vertically */
+        }
+        .table-container {
+            width: 100%; /* Full width within its container */
+            max-width: 600px; /* Adjust maximum width for the table */
+        }
+        .chart-container {
+            width: 100%; /* Full width within its container */
+            max-width: 600px; /* Adjust maximum width for the chart */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="box">
+            <div class="box-header">
+                <h2>Latest Environment Data</h2>
+            </div>
+            <div class="box-content table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Timestamp</th>
+                            <th>Temperature (°C)</th>
+                            <th>Humidity (%)</th>
+                            <th>Distance (cm)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    {% for row in data %}
+                        {% if loop.index <= 5 %} {# Display only the first 5 entries #}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[4] }}</td> {# Assuming timestamp is at index 4 #}
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="box">
+            <div class="box-header">
+                <h2>Environment Data Graph</h2>
+            </div>
+            <div class="box-content chart-container">
+                <canvas id="myChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chart.js Library -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Chart Script -->
+    <script>
+        // Sample data (replace with your actual data)
+        var timestamps = [
+            {% for row in data %}
+                '{{ row[4] }}', // Assuming timestamp is at index 4
+            {% endfor %}
+        ];
+        var temperatures = [
+            {% for row in data %}
+                {{ row[1] }}, // Assuming temperature is at index 1
+            {% endfor %}
+        ];
+        var humidities = [
+            {% for row in data %}
+                {{ row[2] }}, // Assuming humidity is at index 2
+            {% endfor %}
+        ];
+
+        // Create a line chart
+        var ctx = document.getElementById('myChart').getContext('2d');
+        var myChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Temperature',
+                    data: temperatures,
+                    borderColor: 'blue',
+                    backgroundColor: 'rgba(0, 0, 255, 0.1)',
+                    borderWidth: 1
+                }, {
+                    label: 'Humidity',
+                    data: humidities,
+                    borderColor: 'green',
+                    backgroundColor: 'rgba(0, 255, 0, 0.1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }],
+                    xAxes: [{
+                        ticks: {
+                            autoSkip: true,
+                            maxTicksLimit: 10 // Adjust as needed
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+</body>
+</html>
